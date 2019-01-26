@@ -5,6 +5,8 @@
 
 package com.miaoshaproject.controller;
 
+import com.miaoshaproject.error.BusinessException;
+import com.miaoshaproject.error.EmBusinessError;
 import com.miaoshaproject.response.CommonReturnType;
 import com.miaoshaproject.service.UserService;
 import com.miaoshaproject.service.model.UserModel;
@@ -15,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,19 +31,22 @@ import javax.validation.constraints.NotNull;
 @Controller
 @RequestMapping("/user")
 @Slf4j
-public class UserController {
+public class UserController extends BaseController{
 
 	@Autowired
 	@NotNull
 	private UserService userService;
 
 	@ApiOperation(value = "获取用户信息", notes = "根据url的id来获取用户详细信息")
-	@ApiImplicitParam(name = "id", value = "用户ID", required = true, dataType = "int",paramType = "path")
+	@ApiImplicitParam(name = "id", value = "用户ID", required = true, dataType = "int", paramType = "path")
 	@GetMapping("/{id}")
 	@ResponseBody
-	public CommonReturnType getUser(@PathVariable("id") Integer id) {
+	public CommonReturnType getUser(@PathVariable("id") Integer id) throws BusinessException {
 		// 根据用户的id获取用户的信息
 		UserModel user = userService.getUser(id);
+		if (StringUtils.isEmpty(user)) {
+			throw new BusinessException(EmBusinessError.USER_NOT_EXSIT);
+		}
 		// 将核心领域模型用户对象转化为可以供UI使用的viewObject
 		UserVO userVO = convertFromModel(user);
 		return CommonReturnType.create(userVO);
@@ -54,4 +60,5 @@ public class UserController {
 		BeanUtils.copyProperties(userModel, userVO);
 		return userVO;
 	}
+
 }

@@ -4,11 +4,12 @@ package com.miaoshaproject.error;
 /**
  * @author maxu
  */
-public enum EmBusinessError implements CommonError {;
+public enum EmBusinessError implements CommonError {
 	// 通用错误类型0001
 	PARAMETER_VALDITION_ERROR(00001,"参数不合法"),
     // 1000x开头定义用户相关信息
-	USER_NOT_EXSIT(10001,"用户不存在");
+	USER_NOT_EXSIT(10001,"用户不存在"),
+	UNKNOWN_ERROR(20001,"未知错误");
 
 	private int errorCode;
 	private String errorMsg;
