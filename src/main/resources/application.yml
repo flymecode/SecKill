@@ -1,0 +1,20 @@
+logging:
+  level:
+    root: debug
+  file: spring/web.log
+  pattern:
+    #\u63A7\u5236\u53F0\u8F93\u51FA
+    console: "%d{yyyy-MM-dd} [%thread] %-5level %logger{50} -%msg%n"
+    #\u6587\u4EF6\u8F93\u51FA
+    #file: "%d{yyyy\u2010MM\u2010dd} === [%thread] === %\u20105level === %logger{50} ==== %msg%n"
+server:
+  port: 8090
+spring:
+  datasource:
+    password: root
+    username: root
+    name: miaosha
+    # \u914D\u7F6Edruid\u6570\u636E\u6E90
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.jdbc.Driver
+    url: com.mysql.jdbc.Driver
