@@ -5,10 +5,9 @@
 
 package com.miaoshaproject.mapper;
 
+import com.miaoshaproject.mapper.provider.UserInfoSQLProvider;
 import com.miaoshaproject.pojo.UserInfo;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 /**
  *
@@ -19,4 +18,10 @@ public interface UserInfoMapper {
 
 	@Select("SELECT * FROM user_info WHERE id = #{id}")
 	UserInfo findUserById(@Param("id") Integer id);
+
+	@SelectProvider(type = UserInfoSQLProvider.class, method = "insertSelective")
+	@Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
+	void insertSelective(UserInfo userInfo);
+
+	UserInfo findUserByTelphone(String telPhone);
 }

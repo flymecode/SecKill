@@ -16,6 +16,7 @@ public class UserModel {
 	private Integer id;
 	private String name;
 	private Integer gender;
+	private Integer age;
 	private String telPhone;
 	private String registerMode;
 	private Integer thirdPartyId;
