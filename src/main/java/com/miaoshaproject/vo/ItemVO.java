@@ -6,7 +6,6 @@
 package com.miaoshaproject.vo;
 
 import lombok.Data;
-import org.joda.time.DateTime;
 
 import java.math.BigDecimal;
 
@@ -33,6 +32,6 @@ public class ItemVO {
 	private Integer promoId;
 
 	// 开始时间
-	private DateTime startDate;
+	private String startDate;
 
 }
