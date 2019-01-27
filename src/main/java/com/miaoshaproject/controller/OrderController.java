@@ -25,22 +25,23 @@ import javax.servlet.http.HttpSession;
 @RestController
 @RequestMapping("/order")
 public class OrderController extends BaseController {
-	@Autowired
-	private OrderService orderService;
+    @Autowired
+    private OrderService orderService;
 
-	public CommonReturnType createOrder(@RequestParam(name = "itemId") Integer itemId,
-	                                    @RequestParam(name = "amount") Integer amount,
-	                                    HttpSession session) throws BusinessException {
+    public CommonReturnType createOrder(@RequestParam(name = "itemId") Integer itemId,
+                                        @RequestParam(name = "amount") Integer amount,
+                                        @RequestParam(name = "promoId") Integer promoId,
+                                        HttpSession session) throws BusinessException {
 
-		// 获取用户的登陆信息
-		Boolean isLogin= (Boolean) session.getAttribute(SysConstant.IS_LOGIN);
-		if (isLogin == null || !isLogin.booleanValue()) {
-			throw new BusinessException(EmBusinessError.USER_NOT_LOGIN);
-		}
-		// 获取用户的信息
-		UserVO userVO = (UserVO)session.getAttribute(SysConstant.LOGIN_USER);
-		OrderModel orderModel = orderService.createOrder(userVO.getId(), itemId, amount);
-		return CommonReturnType.create(orderModel);
+        // 获取用户的登陆信息
+        Boolean isLogin = (Boolean) session.getAttribute(SysConstant.IS_LOGIN);
+        if (isLogin == null || !isLogin.booleanValue()) {
+            throw new BusinessException(EmBusinessError.USER_NOT_LOGIN);
+        }
+        // 获取用户的信息
+        UserVO userVO = (UserVO) session.getAttribute(SysConstant.LOGIN_USER);
+        OrderModel orderModel = orderService.createOrder(promoId, userVO.getId(), itemId, amount);
+        return CommonReturnType.create(orderModel);
 
-	}
+    }
 }
