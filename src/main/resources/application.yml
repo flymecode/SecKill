@@ -18,3 +18,8 @@ spring:
     # \u914D\u7F6Edruid\u6570\u636E\u6E90
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.jdbc.Driver
+  mail:
+    host: stmp.126.com
+    username: ityouknow@126.com
+    password:
+    default-encoding: UTF-8
