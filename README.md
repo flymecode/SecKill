@@ -1,5 +1,12 @@
 # 秒杀系统设计
 
+收获:
+  - 在我们获得需求之后首先设计领域模型(Domain Model)
+  - 实战派认为领域模型是一种分析模型，用于分析理解复杂业务领域问题，具体到软件开发过程中就是在分析阶段分析如何满足系统功能性需求
+
+### 数据库设计
+
+- 密码与用户主表分离，并且要密文存储
 ### 用户模块
 
 - 用户加密方法
@@ -17,7 +24,7 @@ public static String encode(String str) throws UnsupportedEncodingException, NoS
 
 - VO <--------->Model<--------> POJO
 
-- VO 负责前端展示数据的传输
+- VO 负责前端展示数据的传输，前端只需要展示的字段
 
   ```java
   @Data
@@ -172,4 +179,32 @@ public class SwaggerConfig {
 
 }
 ```
+```java
+	public CommonReturnType createItem(@RequestParam(name = "title") String title,
+	                                   @RequestParam(name = "description") String description,
+	                                   @RequestParam(name = "price") BigDecimal price,
+	                                   @RequestParam(name = "stock") Integer stock,
+	                                   @RequestParam(name = "imgUrl") String imgUrl) throws BusinessException {
+
+		ItemModel itemModel = new ItemModel();
+		itemModel.setTitle(title);
+		itemModel.setDescription(description);
+		itemModel.setPrice(price);
+		itemModel.setStock(stock);
+		itemModel.setImgUrl(imgUrl);
+
+		ItemModel itemForReuturn = itemService.createItem(itemModel);
+		ItemVO itemVO = convertVOFromModel(itemForReuturn);
+		return CommonReturnType.create(itemVO);
+	}
+```
+问题：itemModelForReturn和传入参数形成的itemModel有什么区别呢？
+   ItemServiceImpl里面的createItem方法为什么返回的itemModel需要重新去数据库再取一次
+   
+- 因为许多值在原本的itemmodel里是没有的，比如数据库的默认值，itemmodel里是null，经过数据库后变成0或空字符串
+   
+- 聚合生成的，比如get方法里还会去聚合转换一些逻辑，比如itemstock库存是在get方法里会取，但是itemmodel里只有一个库存数量，没有主键或者以后其他的更多逻辑对一个restful风格的服务，创建方法需要可以返回对象创建后的模型，因此这么做可以将后续逻辑都收口到get方法里
+   
+   
+
 

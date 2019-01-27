@@ -55,10 +55,13 @@ public class UserController extends BaseController {
 		// 用户登陆服务,用来验证用户是否登陆合法
 		UserModel userModel = userService.validateLogin(telPhone, EncodeByMd5.encode(password));
 		// 将登陆凭证加入到用户登陆成功的session内
+		UserVO userVO = convertFromModel(userModel);
 		session.setAttribute("IS_LOGIN",true);
-		session.setAttribute("LOGIN_USER",userModel);
-		return CommonReturnType.create(userModel);
+		session.setAttribute("LOGIN_USER",userVO);
+		return CommonReturnType.create(userVO);
 	}
+
+
 
 	@ApiOperation(value = "用户注册接口")
 	@PostMapping("/register")
