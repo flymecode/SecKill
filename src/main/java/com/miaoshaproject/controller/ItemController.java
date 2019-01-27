@@ -14,11 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author maxu
@@ -32,6 +32,28 @@ public class ItemController {
 	@Autowired
 	private ItemService itemService;
 
+	@GetMapping("/list")
+	@ResponseBody
+	public CommonReturnType listItem(@RequestParam(name = "id") Integer id) {
+		List<ItemModel> itemModels = itemService.listItem();
+		List<ItemVO> itemVOS = itemModels.stream().map(itemModel -> {
+			ItemVO itemVO = convertVOFromModel(itemModel);
+			return itemVO;
+		}).collect(Collectors.toList());
+
+		return CommonReturnType.create(itemVOS);
+	}
+
+	@GetMapping("/{id}")
+	@ResponseBody
+	public CommonReturnType getItem(@PathVariable(name = "id") Integer id) {
+		ItemModel itemModel = itemService.getItemById(id);
+		ItemVO itemVO = convertVOFromModel(itemModel);
+		return CommonReturnType.create(itemVO);
+	}
+
+	@PostMapping("/create")
+	@ResponseBody
 	public CommonReturnType createItem(@RequestParam(name = "title") String title,
 	                                   @RequestParam(name = "description") String description,
 	                                   @RequestParam(name = "price") BigDecimal price,

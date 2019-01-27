@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -60,29 +61,16 @@ public class ItemServiceImpl implements ItemService {
 		return this.getItemById(itemModel.getId());
 	}
 
-	private ItemStock convertItemStockFromItemModel(ItemModel itemModel) {
-		if (itemModel == null) {
-			return null;
-		}
-		ItemStock itemStock = new ItemStock();
-		itemStock.setItemId(itemModel.getId());
-		itemStock.setStock(itemModel.getStock());
-		return itemStock;
-	}
-
-	private Item convertItemFromItemModel(ItemModel itemModel) {
-		if (itemModel == null) {
-			return null;
-		}
-		Item item = new Item();
-		BeanUtils.copyProperties(itemModel,item);
-		item.setPrice(itemModel.getPrice().doubleValue());
-		return item;
-	}
-
 	@Override
 	public List<ItemModel> listItem() {
-		return null;
+		List<Item> items = itemMapper.listItem();
+
+		List<ItemModel> itemModels = items.stream().map(item -> {
+			ItemStock itemStock = itemStockMapper.findByItemId(item.getId());
+			ItemModel itemModel = this.convertModelFromDataObject(item, itemStock);
+			return itemModel;
+		}).collect(Collectors.toList());
+		return itemModels;
 	}
 
 	@Override
@@ -98,11 +86,48 @@ public class ItemServiceImpl implements ItemService {
 		return itemModel;
 	}
 
+	@Override
+	@Transactional
+	public Boolean decreaseStock(Integer itemId, Integer amount) {
+
+		int affectedRow = itemStockMapper.decreaseStock(itemId, amount);
+		if (affectedRow > 0) {
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public void increaseSales(Integer itemId, Integer amount) throws BusinessException {
+		itemMapper.increaseSales(itemId, amount);
+	}
+
 	private ItemModel convertModelFromDataObject(Item item, ItemStock itemStock) {
 		ItemModel itemModel = new ItemModel();
 		BeanUtils.copyProperties(item, itemModel);
 		itemModel.setPrice(new BigDecimal(item.getPrice()));
 		itemModel.setSales(itemStock.getStock());
 		return itemModel;
+	}
+
+	private Item convertItemFromItemModel(ItemModel itemModel) {
+		if (itemModel == null) {
+			return null;
+		}
+		Item item = new Item();
+		BeanUtils.copyProperties(itemModel,item);
+		item.setPrice(itemModel.getPrice().doubleValue());
+		return item;
+	}
+
+
+	private ItemStock convertItemStockFromItemModel(ItemModel itemModel) {
+		if (itemModel == null) {
+			return null;
+		}
+		ItemStock itemStock = new ItemStock();
+		itemStock.setItemId(itemModel.getId());
+		itemStock.setStock(itemModel.getStock());
+		return itemStock;
 	}
 }
