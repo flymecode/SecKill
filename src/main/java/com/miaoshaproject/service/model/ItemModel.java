@@ -24,4 +24,7 @@ public class ItemModel {
 	private String description;
 	private Integer sales;
 	private String imgUrl;
+
+	//使用聚合模型，如果promoModel不为空，则表示还拥有还没结束的秒杀活动
+	private PromoModel promoModel;
 }

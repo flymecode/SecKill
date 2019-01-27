@@ -12,7 +12,9 @@ import com.miaoshaproject.mapper.ItemStockMapper;
 import com.miaoshaproject.pojo.Item;
 import com.miaoshaproject.pojo.ItemStock;
 import com.miaoshaproject.service.ItemService;
+import com.miaoshaproject.service.PromoService;
 import com.miaoshaproject.service.model.ItemModel;
+import com.miaoshaproject.service.model.PromoModel;
 import com.miaoshaproject.validator.ValidationResult;
 import com.miaoshaproject.validator.ValidatorImpl;
 import org.springframework.beans.BeanUtils;
@@ -41,6 +43,9 @@ public class ItemServiceImpl implements ItemService {
 
 	@Autowired
 	private ValidatorImpl validator;
+
+	@Autowired
+	private PromoService promoService;
 
 	@Override
 	@Transactional
@@ -83,6 +88,11 @@ public class ItemServiceImpl implements ItemService {
 		ItemStock itemStock = itemStockMapper.findByItemId(id);
 		// 将dataObject -> model
 		ItemModel itemModel = convertModelFromDataObject(item, itemStock);
+		// 获取活动商品信息
+		PromoModel promoModel = promoService.getPromoByItemId(itemModel.getId());
+		if (promoModel != null && promoModel.getStatus() != 3) {
+			itemModel.setPromoModel(promoModel);
+		}
 		return itemModel;
 	}
 
