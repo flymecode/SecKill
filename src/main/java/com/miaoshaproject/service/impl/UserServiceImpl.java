@@ -13,12 +13,16 @@ import com.miaoshaproject.pojo.UserInfo;
 import com.miaoshaproject.pojo.UserPassword;
 import com.miaoshaproject.service.UserService;
 import com.miaoshaproject.service.model.UserModel;
+import com.miaoshaproject.validator.ValidationResult;
+import com.miaoshaproject.validator.ValidatorImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
+import javax.annotation.Resource;
 
 /**
  * @author maxu
@@ -27,10 +31,15 @@ import org.springframework.util.StringUtils;
 public class UserServiceImpl implements UserService {
 
 	@Autowired
+	@Resource
 	private UserInfoMapper userInfoMapper;
 
 	@Autowired
+	@Resource
 	private UserPasswordMapper userPasswordMapper;
+
+	@Autowired
+	private ValidatorImpl validator;
 
 	@Override
 	public UserModel getUser(Integer id) {
@@ -48,11 +57,15 @@ public class UserServiceImpl implements UserService {
 		if (StringUtils.isEmpty(userModel)) {
 			throw new BusinessException(EmBusinessError.PARAMETER_VALDITION_ERROR);
 		}
-		if (StringUtils.isEmpty(userModel.getName())
-				|| userModel.getGender() == null
-				|| userModel.getAge() == null
-				|| StringUtils.isEmpty(userModel.getTelPhone())) {
-			throw new BusinessException(EmBusinessError.PARAMETER_VALDITION_ERROR);
+//		if (StringUtils.isEmpty(userModel.getName())
+//				|| userModel.getGender() == null
+//				|| userModel.getAge() == null
+//				|| StringUtils.isEmpty(userModel.getTelPhone())) {
+//			throw new BusinessException(EmBusinessError.PARAMETER_VALDITION_ERROR);
+//		}
+		ValidationResult validator = this.validator.validator(userModel);
+		if (validator.isHasErrors()) {
+			throw new BusinessException(EmBusinessError.PARAMETER_VALDITION_ERROR,validator.getErrorsMsg());
 		}
 		// 实现model转为dataobject的方法
 		UserInfo userInfo = transform(userModel);

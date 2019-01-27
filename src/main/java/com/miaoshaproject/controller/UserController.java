@@ -44,7 +44,7 @@ public class UserController extends BaseController {
 	private UserService userService;
 
 
-	@PostMapping("/user")
+	@PostMapping("/login")
 	@ResponseBody
 	public CommonReturnType login(@RequestParam(name = "telphone") String telPhone,
 	                              @RequestParam(name = "password") String password,
@@ -61,7 +61,7 @@ public class UserController extends BaseController {
 	}
 
 	@ApiOperation(value = "用户注册接口")
-	@PostMapping("/user")
+	@PostMapping("/register")
 	@ResponseBody
 	public CommonReturnType register(UserVO userVO,
 	                                 @RequestParam("password") String password,
