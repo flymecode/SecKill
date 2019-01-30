@@ -9,16 +9,18 @@ import com.miaoshaproject.pojo.UserInfo;
 import org.apache.ibatis.jdbc.SQL;
 
 /**
- *
  * @author maxu
  */
 public class UserInfoSQLProvider {
 
+	// InsertProvider
+	// 自定义sql语句,支持 #{} 的格式
 	public String insertSelective(UserInfo userInfo) {
-		return new StringBuffer(new SQL(){{
+		StringBuilder sql = new StringBuilder(new SQL() {{
 			INSERT_INTO("user_info");
-			VALUES("id","id");
-		}}.toString()).toString();
+			VALUES("id", "id");
+		}}.toString());
 
+		return sql.toString();
 	}
 }
