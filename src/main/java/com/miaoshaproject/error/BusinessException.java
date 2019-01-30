@@ -6,10 +6,11 @@
 package com.miaoshaproject.error;
 
 /**
- * 包装器异常处理
+ * 包装器异常处理,装饰器模式
  * @author maxu
  */
 public class BusinessException extends Exception implements CommonError {
+
 	private CommonError commonError;
 
 	//直接接受

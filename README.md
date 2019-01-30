@@ -97,6 +97,7 @@ public class CommonReturnType {
 	public static CommonReturnType create(Object result) {
 		return  CommonReturnType.create(result,"success");
 	}
+	
 	public static CommonReturnType create(Object result,String status) {
 		CommonReturnType type = new CommonReturnType();
 		type.setData(result);
@@ -204,6 +205,87 @@ public class SwaggerConfig {
 - 因为许多值在原本的itemmodel里是没有的，比如数据库的默认值，itemmodel里是null，经过数据库后变成0或空字符串
    
 - 聚合生成的，比如get方法里还会去聚合转换一些逻辑，比如itemstock库存是在get方法里会取，但是itemmodel里只有一个库存数量，没有主键或者以后其他的更多逻辑对一个restful风格的服务，创建方法需要可以返回对象创建后的模型，因此这么做可以将后续逻辑都收口到get方法里
+
+### 异常处理
+```java
+// 定义一个异常的同意结口
+public interface CommonError {
+	int getErrorCode();
+
+	String getErrorMsg();
+
+	CommonError setErrorMsg(String errorMsg);
+
+}
+
+// 实现CommonError接口
+public class BusinessException extends Exception implements CommonError {
+	
+	private CommonError commonError;
+
+	//直接接受
+	public BusinessException(CommonError commonError) {
+		super();
+		this.commonError = commonError;
+	}
+
+	public BusinessException(CommonError commonError,String errMsg) {
+		super();
+		this.commonError.setErrorMsg(errMsg);
+		this.commonError = commonError;
+	}
+	@Override
+	public int getErrorCode() {
+		return commonError.getErrorCode();
+	}
+
+	@Override
+	public String getErrorMsg() {
+		return commonError.getErrorMsg();
+	}
+
+	@Override
+	public CommonError setErrorMsg(String errorMsg) {
+		this.commonError.setErrorMsg(errorMsg);
+		return this;
+	}
+}
+
+// 错误类型定义
+public enum EmBusinessError implements CommonError {
+	// 通用错误类型0001
+	PARAMETER_VALDITION_ERROR(00001,"参数不合法"),
+        // 1000x开头定义用户相关信息
+	USER_NOT_EXSIT(10001,"用户不存在"),
+	UNKNOWN_ERROR(20000,"未知错误"),
+	STOCK_NOT_ENOUGH(30001,"库存不足"),
+	USER_LOGIN_FAIL(20001,"用户或密码不正确"),
+	USER_NOT_LOGIN(20002,"用户未登录") ;
+	private int errorCode;
+	private String errorMsg;
+
+	EmBusinessError(int errorCode, String errorMsg) {
+		this.errorCode = errorCode;
+		this.errorMsg = errorMsg;
+	}
+
+	@Override
+	public int getErrorCode() {
+		return this.errorCode;
+	}
+
+	@Override
+	public String getErrorMsg() {
+		return this.errorMsg;
+	}
+
+	@Override
+	public CommonError setErrorMsg(String errorMsg) {
+		this.errorMsg = errorMsg;
+		return this;
+	}
+}
+```
    
 ### 邮箱实现
 
