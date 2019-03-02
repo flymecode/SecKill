@@ -313,4 +313,28 @@ public enum EmBusinessError implements CommonError {
 - 3） 展示对象：xxxVO，xxx 一般为网页名称。
 - 4） POJO 是 DO/DTO/BO/VO 的统称，禁止命名成 xxxPOJO。
 
+#### 购物车实现过程
+购物车：
 
+1.购物车跟用户的关系
+- 一个用户必须对应一个购物车，当一个用户不管买多少商品都会存在属于自己的购物车中，
+- 单点登陆一定要在购物车之前
+
+2.购物车的操作
+- 添加购物车，
+    用户未登陆状态添加
+    Redis
+	Hash:hset(key,field,value)
+	Key：user:userId:cart
+    Cookie 如果浏览器禁用cookie可以存在本地仓库。
+- 用户已经登陆状态添加
+    1.Reids缓存中，读写速度快。
+    2.存在数据库中。
+
+3.展示购物车：
+- 未登陆状态：
+    直接从cookie取数据
+
+- 登陆状态：
+    用户一旦登陆，必须显示数据库+ cookie中购物车的数据。
+    假如cookie中有三条记录，Redis中有五条记录,真正展示的时候应该是八条数据。
