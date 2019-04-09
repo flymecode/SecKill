@@ -22,11 +22,6 @@ public class SeckillApplication {
     }
 
     @Bean
-    public RedisConfig redisConfig() {
-        return new RedisConfig();
-    }
-
-    @Bean
     public JedisPool jedisPoolFactory(@Qualifier("redisConfig") RedisConfig redisConfig) {
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
         jedisPoolConfig.setMaxIdle(redisConfig.getPoolMaxIdle());
