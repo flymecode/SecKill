@@ -314,6 +314,11 @@ public enum EmBusinessError implements CommonError {
 - 2） 数据传输对象：xxxDTO，xxx 为业务领域相关的名称。
 - 3） 展示对象：xxxVO，xxx 一般为网页名称。
 - 4） POJO 是 DO/DTO/BO/VO 的统称，禁止命名成 xxxPOJO。
+#### 获取商品详情的步骤
+   首先根据商品的id获取商品的详细信息，然后获取库存信息，最后聚合程商品的vo,展示给用户
+    
+#### 秒杀服务
+   首先根据秒杀的状态判断秒杀的信息。如果不可以则提示用户，如果可以进行秒杀
 
 #### 购物车实现过程
 购物车：
