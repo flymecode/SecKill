@@ -7,6 +7,7 @@ package com.xupt.seckill.controller;
 
 import com.xupt.seckill.error.BusinessException;
 import com.xupt.seckill.response.CommonReturnType;
+import com.xupt.seckill.service.CacheService;
 import com.xupt.seckill.service.ItemService;
 import com.xupt.seckill.service.model.ItemModel;
 import com.xupt.seckill.vo.ItemVO;
@@ -38,6 +39,9 @@ public class ItemController {
 	@Autowired
 	private RedisTemplate redisTemplate;
 
+	@Autowired
+	private CacheService cacheService;
+
 	@GetMapping("/list")
 	@ResponseBody
 	public CommonReturnType listItem(@RequestParam(name = "id") Integer id) {
@@ -53,11 +57,19 @@ public class ItemController {
 	@GetMapping("/{id}")
 	@ResponseBody
 	public CommonReturnType getItem(@PathVariable(name = "id") Integer id) {
-		ItemModel itemModel = (ItemModel)redisTemplate.opsForValue().get("item_" + id);
+		ItemModel itemModel = null;
+		// 先获取本地缓存
+		itemModel = (ItemModel) cacheService.getCommonCach("item_" + id);
 		if (itemModel == null) {
-			itemModel = itemService.getItemById(id);
-			redisTemplate.opsForValue().set("item_" + id, itemModel,30, TimeUnit.MINUTES);
+			itemModel = (ItemModel)redisTemplate.opsForValue().get("item_" + id);
+			if (itemModel == null) {
+				itemModel = itemService.getItemById(id);
+				redisTemplate.opsForValue().set("item_" + id, itemModel,30, TimeUnit.MINUTES);
+			}
+			// 填充本地缓存
+			cacheService.setCommonCache("item_" + id, itemModel);
 		}
+
 		ItemVO itemVO = convertVOFromModel(itemModel);
 		return CommonReturnType.create(itemVO);
 	}
