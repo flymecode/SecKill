@@ -46,7 +46,7 @@ redis:
   host: 120.79.7.246
   port: 6379
   timeout: 3
-  password: 123456
+  password: admin
   poolMaxTotal: 10
   poolMaxIdle: 10
   poolMaxWait: 3

@@ -8,6 +8,7 @@ package com.xupt.seckill.service.model;
 import lombok.Data;
 import org.joda.time.DateTime;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
@@ -15,7 +16,7 @@ import java.math.BigDecimal;
  * @author maxu
  */
 @Data
-public class PromoModel {
+public class PromoModel implements Serializable {
 	private Integer id;
 
 	private Integer status;

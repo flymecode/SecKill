@@ -8,6 +8,7 @@ package com.xupt.seckill.service.model;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
@@ -15,7 +16,7 @@ import java.math.BigDecimal;
  * @author maxu
  */
 @Data
-public class ItemModel {
+public class ItemModel implements Serializable {
 	private Integer id;
 	@NotNull(message = "商品价格不能为空")
 	private String title;
