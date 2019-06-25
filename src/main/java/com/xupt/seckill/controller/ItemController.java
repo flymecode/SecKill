@@ -9,6 +9,7 @@ import com.xupt.seckill.error.BusinessException;
 import com.xupt.seckill.response.CommonReturnType;
 import com.xupt.seckill.service.CacheService;
 import com.xupt.seckill.service.ItemService;
+import com.xupt.seckill.service.PromoService;
 import com.xupt.seckill.service.model.ItemModel;
 import com.xupt.seckill.vo.ItemVO;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,10 @@ public class ItemController {
 
 	@Autowired
 	private CacheService cacheService;
+
+	@Autowired
+	private PromoService promoService;
+
 
 	@GetMapping("/list")
 	@ResponseBody
@@ -92,6 +97,13 @@ public class ItemController {
 		ItemModel itemForReuturn = itemService.createItem(itemModel);
 		ItemVO itemVO = convertVOFromModel(itemForReuturn);
 		return CommonReturnType.create(itemVO);
+	}
+
+	@PostMapping("/publish")
+	@ResponseBody
+	public CommonReturnType publishPromo(@RequestParam(name = "promoid") Integer promoId) {
+		promoService.publishPromo(promoId);
+		return CommonReturnType.create(null);
 	}
 
 	private ItemVO convertVOFromModel(ItemModel itemModel) {

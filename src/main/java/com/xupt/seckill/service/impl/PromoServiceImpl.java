@@ -7,7 +7,9 @@ package com.xupt.seckill.service.impl;
 
 import com.xupt.seckill.mapper.PromoMapper;
 import com.xupt.seckill.pojo.Promo;
+import com.xupt.seckill.service.ItemService;
 import com.xupt.seckill.service.PromoService;
+import com.xupt.seckill.service.model.ItemModel;
 import com.xupt.seckill.service.model.PromoModel;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
@@ -27,6 +29,9 @@ import java.util.concurrent.TimeUnit;
 public class PromoServiceImpl implements PromoService {
 	@Resource
 	private PromoMapper promoMapper;
+
+	@Autowired
+	private ItemService itemService;
 
 	@Autowired
 	private RedisTemplate redisTemplate;
@@ -51,7 +56,17 @@ public class PromoServiceImpl implements PromoService {
 
 	@Override
 	public void publishPromo(Integer promoId) {
-		// TODO
+		// 通过活动id 获取活动
+		Promo promo = promoMapper.findById(promoId);
+		if (promo.getItemId() == null || promo.getItemId().intValue() == 0) {
+			return;
+		}
+		// TODO 如果存入内存，有可能你读取的时候，此时数据的的商品已经被修改了。我们这里可以设置为活动开始的时候将库存信息存入数据库？
+		// 我们可以在业务层面必须下架的状态才可以
+		ItemModel itemModel = itemService.getItemById(promo.getItemId());
+		// 将库存存入内存
+		redisTemplate.opsForValue().set("promo_item_stock_" + itemModel.getId(), itemModel.getStock());
+
 	}
 
 	@Override
