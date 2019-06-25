@@ -48,11 +48,15 @@ public class OrderServiceImpl implements OrderService {
 	@Transactional
 	public OrderModel createOrder(Integer promoId, Integer userId, Integer itemId, Integer amount) throws BusinessException {
 		// 校验下单状态，下单的商品是否存在，用户是否合法，购买的数量是否正确
-		ItemModel itemModel = itemService.getItemById(itemId);
+		// ItemModel itemModel = itemService.getItemById(itemId);
+		// 进行优化，首先从缓存中获取，减少了访问数据库的操作
+		ItemModel itemModel = itemService.getItemByIdInCache(itemId);
 		if (itemModel == null) {
 			throw new BusinessException(EmBusinessError.PARAMETER_VALDITION_ERROR, "商品信息不存在");
 		}
-		UserModel userInfo = userService.getUser(userId);
+		// 通过缓存获取用户对象
+		// UserModel userInfo = userService.getUser(userId);
+		UserModel userInfo = userService.getUserFromCache(userId);
 		if (userInfo == null) {
 			throw new BusinessException(EmBusinessError.PARAMETER_VALDITION_ERROR, "用户信息不存在");
 		}
@@ -68,8 +72,8 @@ public class OrderServiceImpl implements OrderService {
 			} else if(itemModel.getPromoModel().getStatus() != 2) {
 				throw new BusinessException(EmBusinessError.PARAMETER_VALDITION_ERROR, "活动还未开始");
 			}
-			//
 		}
+		/**-----------------------------------------上面是校验------------------------------------------------------------*/
 		// 落单减库存
 		Boolean result = itemService.decreaseStock(itemId,amount);
 		if (!result) {

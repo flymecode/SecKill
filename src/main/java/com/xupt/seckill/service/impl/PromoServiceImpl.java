@@ -12,9 +12,12 @@ import com.xupt.seckill.service.model.PromoModel;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -22,9 +25,11 @@ import javax.annotation.Resource;
  */
 @Service
 public class PromoServiceImpl implements PromoService {
-	@Autowired
 	@Resource
 	private PromoMapper promoMapper;
+
+	@Autowired
+	private RedisTemplate redisTemplate;
 	@Override
 	public PromoModel getPromoByItemId(Integer itemId) {
 		Promo promo = promoMapper.findByItemId(itemId);
@@ -42,6 +47,39 @@ public class PromoServiceImpl implements PromoService {
 			promoModel.setStatus(2);
 		}
 		return promoModel;
+	}
+
+	@Override
+	public void publishPromo(Integer promoId) {
+		// TODO
+	}
+
+	@Override
+	public String generateSecondKillToken(Integer promoId,Integer itemId,Integer userId) {
+		Promo promo = promoMapper.findByItemId(promoId);
+		PromoModel promoModel = convertModelFromDataObject(promo);
+		if (promoModel == null) {
+			return null;
+		}
+
+		// 判断用户的登陆信息
+
+
+		// 判断秒杀时间是
+		DateTime now = new DateTime();
+		if (promoModel.getStartDate().isAfterNow()) {
+			promoModel.setStatus(1);
+		} else if(promoModel.getEndDate().isBeforeNow()) {
+			promoModel.setStatus(3);
+		} else {
+			promoModel.setStatus(2);
+		}
+		if (promoModel.getStatus().intValue() != 2) {
+			return null;
+		}
+		String token = UUID.randomUUID().toString().replace("-", "");
+		redisTemplate.opsForValue().set("promo_token_" + promoId, token, 5, TimeUnit.MINUTES);
+		return token;
 	}
 
 	private PromoModel convertModelFromDataObject(Promo promo) {

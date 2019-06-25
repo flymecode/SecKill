@@ -21,4 +21,11 @@ public interface UserService {
 	void register(UserModel userModel) throws BusinessException;
 
 	UserModel validateLogin(String telPhone, String password) throws BusinessException;
+
+	/**
+	 * 从缓存中获取用户信息
+	 * @param userId
+	 * @return
+	 */
+    UserModel getUserFromCache(Integer userId);
 }

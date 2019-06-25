@@ -13,5 +13,25 @@ import com.xupt.seckill.service.model.PromoModel;
  */
 public interface PromoService {
 
+	/**
+	 * by item_id get promo
+	 * @param itemId
+	 * @return
+	 */
 	PromoModel getPromoByItemId(Integer itemId);
+
+	/**
+	 * publish promo
+	 * @param promoId
+	 */
+	void publishPromo(Integer promoId);
+
+
+	/**
+	 * 生成秒杀令牌
+	 * @param itemId
+	 * @return
+	 */
+	String generateSecondKillToken(Integer promoId,Integer itemId,Integer userId);
+
 }

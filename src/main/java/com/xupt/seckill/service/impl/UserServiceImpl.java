@@ -18,11 +18,13 @@ import com.xupt.seckill.validator.ValidatorImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author maxu
@@ -40,6 +42,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private ValidatorImpl validator;
+
+	@Autowired
+	private RedisTemplate redisTemplate;
 
 	@Override
 	public UserModel getUser(Integer id) {
@@ -92,6 +97,16 @@ public class UserServiceImpl implements UserService {
 		// 比对用户的信息内加密的密码是否和传输进来的密码相匹配
 		if (com.alibaba.druid.util.StringUtils.equals(password, userPassword.getEncrptPassword())) {
 			throw new BusinessException(EmBusinessError.USER_LOGIN_FAIL);
+		}
+		return userModel;
+	}
+
+	@Override
+	public UserModel getUserFromCache(Integer userId) {
+		UserModel userModel = (UserModel) redisTemplate.opsForValue().get("user_validate_" + userId);
+		if (userModel == null) {
+			userModel = this.getUser(userId);
+			redisTemplate.opsForValue().set("user_validate_" + userId, userModel, 30, TimeUnit.MINUTES);
 		}
 		return userModel;
 	}

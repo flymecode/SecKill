@@ -13,6 +13,7 @@ import com.xupt.seckill.service.model.OrderModel;
 import com.xupt.seckill.until.SysConstant;
 import com.xupt.seckill.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,15 +29,15 @@ public class OrderController extends BaseController {
     @Autowired
     private OrderService orderService;
 
+    @PostMapping("/createorder")
     public CommonReturnType createOrder(@RequestParam(name = "itemId") Integer itemId,
                                         @RequestParam(name = "amount") Integer amount,
                                         @RequestParam(name = "promoId") Integer promoId,
                                         HttpSession session) throws BusinessException {
-
         // 获取用户的登陆信息
         Boolean isLogin = (Boolean) session.getAttribute(SysConstant.IS_LOGIN);
         if (isLogin == null || !isLogin.booleanValue()) {
-            throw new BusinessException(EmBusinessError.USER_NOT_LOGIN);
+            throw new BusinessException(EmBusinessError.USER_NOT_LOGIN, "用户未登录");
         }
         // 获取用户的信息
         UserVO userVO = (UserVO) session.getAttribute(SysConstant.LOGIN_USER);

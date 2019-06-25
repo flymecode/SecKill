@@ -51,4 +51,11 @@ public interface ItemService {
 	 * @throws BusinessException
 	 */
 	void increaseSales(Integer itemId, Integer amount)throws BusinessException;
+
+	/**
+	 * item and promoModel cache model
+	 * @param id
+	 * @return
+	 */
+	ItemModel getItemByIdInCache(Integer id);
 }
