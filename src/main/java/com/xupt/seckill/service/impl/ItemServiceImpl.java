@@ -9,8 +9,10 @@ import com.xupt.seckill.error.BusinessException;
 import com.xupt.seckill.error.EmBusinessError;
 import com.xupt.seckill.mapper.ItemMapper;
 import com.xupt.seckill.mapper.ItemStockMapper;
+import com.xupt.seckill.mapper.StockLogMapper;
 import com.xupt.seckill.pojo.Item;
 import com.xupt.seckill.pojo.ItemStock;
+import com.xupt.seckill.pojo.StockLog;
 import com.xupt.seckill.service.ItemService;
 import com.xupt.seckill.service.PromoService;
 import com.xupt.seckill.service.model.ItemModel;
@@ -51,6 +53,9 @@ public class ItemServiceImpl implements ItemService {
 
 	@Autowired
 	private RedisTemplate redisTemplate;
+
+	@Autowired
+	private StockLogMapper stockLogMapper;
 
 	@Override
 	@Transactional
@@ -103,11 +108,20 @@ public class ItemServiceImpl implements ItemService {
 	@Override
 	@Transactional
 	public Boolean decreaseStock(Integer itemId, Integer amount) {
-
-		int affectedRow = itemStockMapper.decreaseStock(itemId, amount);
-		if (affectedRow > 0) {
+		// 修改内存中的库存信息
+		Long result = redisTemplate.opsForValue().decrement("promo_item_stock_" + itemId, amount.intValue());
+		if (result > 0) {
+			// 更新库存成功
+			// TODO 使用rabbitmq 异步同步库存到数据库，如果成功则返回，否则将库存信息还原，为了事务处理，我们将同步库存的操作放置在orderServiceImpl
 			return true;
-		}
+		} else if(result==0) {
+			// 打上库存售衾的表示
+			redisTemplate.opsForValue().set("promo_item_stock_invalid_" + itemId, "true");
+			return true;
+		} else {
+		    // 将库存回补
+            increaseStock(itemId, amount);
+        }
 		return false;
 	}
 
@@ -126,7 +140,27 @@ public class ItemServiceImpl implements ItemService {
 		return itemModel;
 	}
 
-	private ItemModel convertModelFromDataObject(Item item, ItemStock itemStock) {
+    @Override
+    public boolean asyncDecreaseStock(Integer itemId, Integer amount) {
+	    // TODO 异步更新库存
+        return false;
+    }
+
+    @Override
+    public boolean increaseStock(Integer itemId, Integer amount) {
+        redisTemplate.opsForValue().increment("promo_item_stock_" + itemId, amount.intValue());
+        return false;
+    }
+
+    @Override
+    public void initStockLog(Integer itemId, Integer amount) {
+		StockLog stockLog = new StockLog();
+		stockLog.setAmount(amount);
+		stockLog.setItemId(itemId);
+		stockLog.setStatus(0);
+    }
+
+    private ItemModel convertModelFromDataObject(Item item, ItemStock itemStock) {
 		ItemModel itemModel = new ItemModel();
 		BeanUtils.copyProperties(item, itemModel);
 		itemModel.setPrice(new BigDecimal(item.getPrice()));

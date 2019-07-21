@@ -58,4 +58,27 @@ public interface ItemService {
 	 * @return
 	 */
 	ItemModel getItemByIdInCache(Integer id);
+
+    /**
+     * 异步同步库存
+     * @param itemId
+     * @param amount
+     * @return
+     */
+    boolean asyncDecreaseStock(Integer itemId, Integer amount);
+
+    /**
+     * redis库存回补
+     * @param itemId
+     * @param amount
+     * @return
+     */
+    boolean increaseStock(Integer itemId, Integer amount);
+
+    /**
+     * 初始化库存流水
+     * @param itemId
+     * @param amount
+     */
+    int initStockLog(Integer itemId, Integer amount);
 }
